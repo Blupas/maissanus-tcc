@@ -1,20 +1,64 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SelectionProvider } from './SelectionContext'; // Importando o contexto
 
-export default function App() {
+import LoginScreen from './LoginScreen'; // Ajuste o caminho se necessário
+import HomeScreen from './HomeScreen'; // Ajuste o caminho se necessário
+import TreinoSelecaoScreen from './TreinoSelecaoScreen';
+import HipertrofiaScreen from './HipertrofiaScreen'; // Crie essa tela se ainda não existir
+import ForcaScreen from './ForcaScreen'; // Ajuste o caminho se necessário
+import PerdaDePesoScreen from './PerdaDePesoScreen'; // Ajuste o caminho se necessário
+import AguaDiariaScreen from './AguaDiariaScreen'; // Ajuste o caminho se necessário
+import CaloriasDiariasScreen from './CaloriasDiariasScreen'; // Ajuste o caminho se necessário
+import DetalhesScreen from './DetalhesScreen';
+import SelecaoScreen from './SelecaoScreen'; // Ajuste o caminho
+import CalculosScreen from './CalculosScreen'; // Caminho correto para o arquivo
+import ResistenciaScreen from './ResistenciaScreen'; // Ajuste o caminho conforme necessário
+import UsuarioScreen from './UsuarioScreen';
+import EditarUsuarioScreen from './EditarUsuarioScreen';
+import RegisterScreen from './RegisterScreen';
+
+const Stack = createStackNavigator();
+
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SelectionProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: '#1F1F1F', // Cor de fundo do cabeçalho para todas as telas
+            },
+            headerTintColor: '#fff', // Cor do texto e dos ícones no cabeçalho
+            headerTitleAlign: 'left', // Centraliza o título no cabeçalho
+          }}
+        >
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Selecao" component={SelecaoScreen} options={{ title: 'Seleção' }} />
+          <Stack.Screen name="Detalhes" component={DetalhesScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} />
+          <Stack.Screen name="UsuarioScreen" component={UsuarioScreen} options={{ title: 'Usuário' }} />
+           <Stack.Screen name="EditarUsuarioScreen" component={EditarUsuarioScreen} options={{ title: 'Editar Usuário' }} />
+          <Stack.Screen name="ForcaScreen" component={ForcaScreen} options={{ title: 'Treino de Força' }} />
+          <Stack.Screen name="HipertrofiaScreen" component={HipertrofiaScreen} options={{ title: 'Treino de Hipertrofia' }} />
+          <Stack.Screen name="AguaDiaria" component={AguaDiariaScreen} options={{ title: 'Controle de Água' }} />
+          <Stack.Screen name="CaloriasDiarias" component={CaloriasDiariasScreen} options={{ title: 'Planejamento de Dieta' }} />
+          <Stack.Screen name="TreinoSelecaoScreen" component={TreinoSelecaoScreen} options={{ title: 'Seleção de Treino' }} />
+          <Stack.Screen name="PerdaDePesoScreen" component={PerdaDePesoScreen} options={{ title: 'Treino para Perda de Peso' }} />
+          <Stack.Screen name="Calculos" component={CalculosScreen} options={{ title: 'Cálculos IMC/TMB' }} />
+          <Stack.Screen 
+            name="ResistenciaScreen" 
+            component={ResistenciaScreen} 
+            options={{ title: 'Treino de Resistência' }} 
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SelectionProvider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
