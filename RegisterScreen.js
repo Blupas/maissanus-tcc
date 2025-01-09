@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Alert,
-  Dimensions,
-} from 'react-native';
-
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-// import { auth, db } from './firebaseConfig';
-// import { createUserWithEmailAndPassword } from 'firebase/auth';
-// import { doc, setDoc } from 'firebase/firestore';
+import { authFirebase, createUserWithEmailAndPassword, setDoc, getUserRef, getDocs, collection, db } from './firebaseConfig';
 
 const { width } = Dimensions.get('window');
 
@@ -24,29 +12,35 @@ const RegisterScreen = ({ navigation }) => {
   const [heightValue, setHeightValue] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
-  const [profileImage, setProfileImage] = useState('https://via.placeholder.com/150');
-
-  const handleOpenGallery = () => {
-    Alert.alert('Galeria', 'Função para abrir a galeria será implementada aqui.');
-  };
-  
 
   const handleRegister = async () => {
     try {
-      // Criar o usuário no Firebase Authentication
-      // const userCredential = await createUserWithEmailAndPassword(auth, username, password);
-      // const userId = userCredential.user.uid;
+      // Criação do usuário no Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(authFirebase, username, password);
+      console.log("Usuário registrado no Firebase Auth!");
 
-      // // Salvar os dados do usuário no Firestore
-      // await setDoc(doc(db, 'users', userId), {
-      //   username,
-      //   weight,
-      //   height: heightValue,
-      //   age,
-      //   gender,
-      //   profileImage,
-      // });
+      // Adiciona os dados no Firestore com setDoc
 
+        const querySnapshot = await getDocs(collection(db, "users"));
+        querySnapshot.forEach((doc) => {
+          console.log(`${doc.id} => ${doc.data()}`);
+        });
+
+      const userRef = getUserRef(userCredential.user.uid);  // Não precisa de await aqui
+
+      await setDoc(userRef, {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        username,
+        weight,
+        height: heightValue,
+        age,
+        gender,
+        dataCadastro: new Date(),
+      });
+      console.log("Documento no Firestore criado com ID: ", userCredential.user.uid);
+
+      // Exibe o alerta de sucesso
       Alert.alert('Registro realizado com sucesso!', 'Bem-vindo!', [
         { text: 'OK', onPress: () => navigation.navigate('Home') },
       ]);
@@ -58,13 +52,6 @@ const RegisterScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Ícone de Perfil Grande */}
-      <TouchableOpacity onPress={handleOpenGallery}>
-        <View style={styles.profileContainer}>
-          <Image style={styles.profileImage} source={{ uri: profileImage }} />
-        </View>
-      </TouchableOpacity>
-
       {/* Campos de Registro */}
       <View style={styles.inputContainer}>
         <TextInput
@@ -138,15 +125,13 @@ const RegisterScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#1C1C1E', justifyContent: 'center', padding: 20 },
-  profileContainer: { alignItems: 'center', marginBottom: 20 },
-  profileImage: { width: width * 0.3, height: width * 0.3, borderRadius: (width * 0.3) / 2, backgroundColor: '#444', borderColor: '#6FA15A', borderWidth: 2 },
   inputContainer: { marginHorizontal: 20 },
   input: { backgroundColor: '#2C2C2E', color: '#fff', padding: 15, borderRadius: 15, marginBottom: 15, borderWidth: 1, borderColor: '#444' },
   genderContainer: { marginBottom: 15 },
   label: { color: '#ddd', marginBottom: 5, fontSize: 16, fontWeight: 'bold' },
   picker: { backgroundColor: '#2C2C2E', color: '#fff', borderRadius: 10 },
-  RegisterButton: { backgroundColor: '#6FA15A', padding: 15, borderRadius: 15, marginHorizontal: 20, alignItems: 'center' },
-  RegisterButtonText: { color: '#fff', fontSize: width * 0.045, fontWeight: 'bold', textTransform: 'uppercase' },
+  registerButton: { backgroundColor: '#6FA15A', padding: 15, borderRadius: 15, marginHorizontal: 20, alignItems: 'center' },
+  registerButtonText: { color: '#fff', fontSize: width * 0.045, fontWeight: 'bold', textTransform: 'uppercase' },
   backButton: { marginTop: 20, alignItems: 'center' },
   backButtonText: { color: '#6FA15A', fontSize: width * 0.04, fontWeight: '600' },
 });
