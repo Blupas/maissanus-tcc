@@ -1,20 +1,36 @@
-import { getApp, initializeApp } from '@react-native-firebase/app';
-import auth from '@react-native-firebase/auth';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';  // Para autenticação
+import { getFirestore, doc, collection, addDoc, getDocs } from 'firebase/firestore';  // Para Firestore
+import { getDatabase } from 'firebase/database';
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBKoUrkAjZvGOgynQKmHT99SbdbN-LdHLI",
-  authDomain: "maissanus.firebaseapp.com",
-  projectId: "maissanus",
-  storageBucket: "maissanus.firebasestorage.app",
-  messagingSenderId: "993152237087",
-  appId: "1:993152237087:web:ec634039d7e40d452edf2a"
+  apiKey: "AIzaSyANtTilF-mjEYuiXPV7ovzEcwz9Pfp31e0",
+  authDomain: "maissanustcc.firebaseapp.com",
+  projectId: "maissanustcc",
+  storageBucket: "maissanustcc.firebasestorage.app",
+  messagingSenderId: "762515831979",
+  appId: "1:762515831979:web:4e058f435509eb7cc54bee"
 };
 
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-const app = getApp();
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Inicializando os serviços Firebase
+const authFirebase = getAuth(app);  // Para autenticação
+const firestore = getFirestore(app);  // Para Firestore
+const db = getDatabase(app);  // Para Realtime Database
+
+// Função para obter referência ao documento do usuário com o UID
+const getUserRef = (uid) => doc(firestore, 'users', uid);
+
+export { 
+  authFirebase, 
+  firestore, 
+  db, 
+  doc, 
+  addDoc, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  collection, 
+  getUserRef ,
+  getDocs
+};
