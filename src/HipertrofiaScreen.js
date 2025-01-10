@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Text } from 'react-native';
 
 const HipertrofiaScreen = () => {
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator='true'>
       {/* Peito */}
       <View style={styles.group}>
         <Text style={styles.groupTitle}>Peito</Text>

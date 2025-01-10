@@ -15,16 +15,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Inicializando os serviços Firebase
-const authFirebase = getAuth(app);  // Para autenticação
-const firestore = getFirestore(app);  // Para Firestore
-const db = getDatabase(app);  // Para Realtime Database
+const authFirebase = getAuth(app);
+const db = getFirestore(app);
 
 // Função para obter referência ao documento do usuário com o UID
 const getUserRef = (uid) => doc(firestore, 'users', uid);
 
 export { 
   authFirebase, 
-  firestore, 
   db, 
   doc, 
   addDoc, 

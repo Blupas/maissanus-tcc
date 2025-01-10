@@ -13,7 +13,7 @@ const TelaSelecao = () => {
         style={styles.header}
         onPress={() => navigation.navigate('UsuarioScreen')}  // Navega para a tela de Usuário
       >
-        <Text style={styles.headerTitle}>Usuário</Text>
+        <Text style={styles.headerTitle}>Seu perfil</Text>
         <Ionicons name="person-circle-outline" size={48} color="#fff" />
       </TouchableOpacity>
 

@@ -1,73 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { authFirebase, createUserWithEmailAndPassword, setDoc, getUserRef, getDocs, collection, db } from './firebaseConfig';
+import { authFirebase, db, doc } from '../firebaseConfig';
+import { updateDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
-const RegisterScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [weight, setWeight] = useState('');
-  const [heightValue, setHeightValue] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('');
+const EditarUsuarioScreen = ({ navigation, route }) => {
+  const { userData } = route.params; // Dados do usuário vindo da tela anterior
 
-  const handleRegister = async () => {
+  // Estados para os campos editáveis
+  const [username, setUsername] = useState(userData.username);
+  const [email, setEmail] = useState(userData.email);
+  const [weight, setWeight] = useState(userData.weight);
+  const [heightValue, setHeightValue] = useState(userData.height);
+  const [age, setAge] = useState(userData.age);
+  const [gender, setGender] = useState(userData.gender);
+
+  // Função para atualizar as informações do usuário no Firestore
+  const handleUpdate = async () => {
+    const currentUser = authFirebase.currentUser;
+
+    if (!currentUser) {
+      Alert.alert('Erro', 'Usuário não autenticado.');
+      return;
+    }
+
     try {
-      // Criação do usuário no Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(authFirebase, username, password);
-      console.log("Usuário registrado no Firebase Auth!");
+      // Atualizar documento no Firestore
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        username,
+        email,
+        weight,
+        height: heightValue,
+        age,
+        gender,
+      });
 
-      // Adiciona os dados no Firestore com setDoc
-
-        const querySnapshot = await getDocs(collection(db, "users"));
-        querySnapshot.forEach((doc) => {
-          console.log(`${doc.id} => ${doc.data()}`);
-        });
-
-      const userRef = getUserRef(userCredential.user.uid);  // Não precisa de await aqui
-
-      await setDoc(userRef, {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email,
+      // Atualizar AsyncStorage
+      await AsyncStorage.setItem('userData', JSON.stringify({
+        uid: currentUser.uid,
+        email,
         username,
         weight,
         height: heightValue,
         age,
         gender,
-        dataCadastro: new Date(),
-      });
-      console.log("Documento no Firestore criado com ID: ", userCredential.user.uid);
+      }));
 
-      // Exibe o alerta de sucesso
-      Alert.alert('Registro realizado com sucesso!', 'Bem-vindo!', [
-        { text: 'OK', onPress: () => navigation.navigate('Home') },
-      ]);
+      Alert.alert('Sucesso', 'Informações atualizadas com sucesso!');
+      navigation.goBack();
     } catch (error) {
-      console.error('Erro no registro: ', error.message);
-      Alert.alert('Erro no registro', error.message);
+      console.error('Erro ao atualizar informações:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar as informações.');
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Campos de Registro */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Usuário (E-mail)"
+          placeholder="Nome de Usuário"
           placeholderTextColor="#bbb"
           value={username}
           onChangeText={setUsername}
         />
         <TextInput
           style={styles.input}
-          placeholder="Senha"
+          placeholder="Email"
           placeholderTextColor="#bbb"
-          secureTextEntry={true}
-          value={password}
-          onChangeText={setPassword}
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
@@ -93,8 +98,6 @@ const RegisterScreen = ({ navigation }) => {
           value={age}
           onChangeText={setAge}
         />
-
-        {/* Seleção de Sexo */}
         <View style={styles.genderContainer}>
           <Text style={styles.label}>Sexo:</Text>
           <Picker
@@ -110,14 +113,12 @@ const RegisterScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Botão de Registro */}
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-        <Text style={styles.registerButtonText}>Registrar</Text>
+      <TouchableOpacity style={styles.registerButton} onPress={handleUpdate}>
+        <Text style={styles.registerButtonText}>Salvar Alterações</Text>
       </TouchableOpacity>
 
-      {/* Botão Voltar */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Voltar ao login</Text>
+        <Text style={styles.backButtonText}>Voltar ao Perfil</Text>
       </TouchableOpacity>
     </View>
   );
@@ -136,4 +137,4 @@ const styles = StyleSheet.create({
   backButtonText: { color: '#6FA15A', fontSize: width * 0.04, fontWeight: '600' },
 });
 
-export default RegisterScreen;
+export default EditarUsuarioScreen;

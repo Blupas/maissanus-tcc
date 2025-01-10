@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UsuarioScreen = ({ navigation }) => {
-  const [userData, setUserData] = useState({
-    nome: 'Michell Shadow',
-    idade: '17',
-    altura: '1,66',
-    peso: '68',
-  });
+  const [userData, setUserData] = useState({});
 
   // Função para carregar dados salvos
   const loadUserData = async () => {
     try {
       const savedData = await AsyncStorage.getItem('userData');
       if (savedData) {
-        setUserData(JSON.parse(savedData));
+        setUserData(JSON.parse(savedData)); // Convertendo a string JSON para objeto
       }
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error);
@@ -26,28 +21,36 @@ const UsuarioScreen = ({ navigation }) => {
     loadUserData();
   }, []);
 
+  useEffect(() => {
+    console.log(userData); // Log para verificar os dados carregados
+  }, [userData]);
+
   return (
     <View style={styles.container}>
       {/* Espaço para a Foto do Usuário */}
       <View style={styles.profileContainer}>
-        <Image
-          source={{ uri: 'https://via.placeholder.com/150' }} // Substitua pela URL da foto do usuário
-          style={styles.profileImage}
-        />
-        <Text style={styles.name}>{userData.nome}</Text>
+        <Text style={styles.name}>{userData.username || 'Usuário'}</Text>
       </View>
 
       {/* Informações do Usuário */}
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Idade: <Text style={styles.value}>{userData.idade} anos</Text></Text>
-        <Text style={styles.infoText}>Altura: <Text style={styles.value}>{userData.altura} m</Text></Text>
-        <Text style={styles.infoText}>Peso: <Text style={styles.value}>{userData.peso} kg</Text></Text>
+        <Text style={styles.infoText}>
+          Idade: <Text style={styles.value}>{userData.age || '--'} anos</Text>
+        </Text>
+        <Text style={styles.infoText}>
+          Altura: <Text style={styles.value}>{userData.height || '--'} cm</Text>
+        </Text>
+        <Text style={styles.infoText}>
+          Peso: <Text style={styles.value}>{userData.weight || '--'} kg</Text>
+        </Text>
       </View>
 
       {/* Botão para Editar */}
       <TouchableOpacity
         style={styles.editButton}
-        onPress={() => navigation.navigate('EditarUsuarioScreen', { userData, setUserData })}
+        onPress={() =>
+          navigation.navigate('EditarUsuarioScreen', { userData, setUserData })
+        }
       >
         <Text style={styles.editButtonText}>Editar Informações</Text>
       </TouchableOpacity>
@@ -65,14 +68,6 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: 'center',
     marginBottom: 20,
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 2,
-    borderColor: '#6FA15A',
-    marginBottom: 10,
   },
   name: {
     fontSize: 22,

@@ -2,23 +2,23 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { SelectionProvider } from './SelectionContext'; // Importando o contexto
+import { SelectionProvider } from './src/SelectionContext'; // Importando o contexto
 
-import LoginScreen from './LoginScreen'; // Ajuste o caminho se necessário
-import HomeScreen from './HomeScreen'; // Ajuste o caminho se necessário
-import TreinoSelecaoScreen from './TreinoSelecaoScreen';
-import HipertrofiaScreen from './HipertrofiaScreen'; // Crie essa tela se ainda não existir
-import ForcaScreen from './ForcaScreen'; // Ajuste o caminho se necessário
-import PerdaDePesoScreen from './PerdaDePesoScreen'; // Ajuste o caminho se necessário
-import AguaDiariaScreen from './AguaDiariaScreen'; // Ajuste o caminho se necessário
-import CaloriasDiariasScreen from './CaloriasDiariasScreen'; // Ajuste o caminho se necessário
-import DetalhesScreen from './DetalhesScreen';
-import SelecaoScreen from './SelecaoScreen'; // Ajuste o caminho
-import CalculosScreen from './CalculosScreen'; // Caminho correto para o arquivo
-import ResistenciaScreen from './ResistenciaScreen'; // Ajuste o caminho conforme necessário
-import UsuarioScreen from './UsuarioScreen';
-import EditarUsuarioScreen from './EditarUsuarioScreen';
-import RegisterScreen from './RegisterScreen';
+import LoginScreen from './src/LoginScreen'; // Ajuste o caminho se necessário
+import HomeScreen from './src//HomeScreen'; // Ajuste o caminho se necessário
+import TreinoSelecaoScreen from './src/TreinoSelecaoScreen';
+import HipertrofiaScreen from './src/HipertrofiaScreen'; // Crie essa tela se ainda não existir
+import ForcaScreen from './src/ForcaScreen'; // Ajuste o caminho se necessário
+import PerdaDePesoScreen from './src/PerdaDePesoScreen'; // Ajuste o caminho se necessário
+import AguaDiariaScreen from './src/AguaDiariaScreen'; // Ajuste o caminho se necessário
+import CaloriasDiariasScreen from './src/CaloriasDiariasScreen'; // Ajuste o caminho se necessário
+import DetalhesScreen from './src/DetalhesScreen';
+import SelecaoScreen from './src/SelecaoScreen'; // Ajuste o caminho
+import CalculosScreen from './src/CalculosScreen'; // Caminho correto para o arquivo
+import ResistenciaScreen from './src/ResistenciaScreen'; // Ajuste o caminho conforme necessário
+import UsuarioScreen from './src/UsuarioScreen';
+import EditarUsuarioScreen from './src/EditarUsuarioScreen';
+import RegisterScreen from './src/RegisterScreen';
 
 const Stack = createStackNavigator();
 
