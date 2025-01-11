@@ -1,40 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   Alert,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { authFirebase, db } from "../firebaseConfig";
+import { authFirebase, db } from "../firebaseConfig"; // Certifique-se de que authFirebase e db estão exportados corretamente.
 import { getDoc, doc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const images = [
-    "https://redacaonline.com.br/wp-content/uploads/2022/02/ma-alimentacao-jovens.jpg",
-    "https://terradomandu.com.br/wp-content/uploads/2017/07/fast-food-x-saudaveis-1.jpg",
-    "https://cdn.weasyl.com/static/media/c1/b5/16/c1b516b07b3b99dfa0af24cb82b6a5f65869ac2739d98c723521fd9bd950218a.png",
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleLogin = async () => {
     try {
-      // Autenticando usuário no Firebase
       const userCredential = await signInWithEmailAndPassword(
         authFirebase,
         username,
@@ -46,11 +29,10 @@ const LoginScreen = ({ navigation }) => {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-
         await AsyncStorage.setItem("userData", JSON.stringify(userData));
 
         console.log("Usuário logado:", userData);
-        navigation.navigate("Selecao"); 
+        navigation.navigate("Selecao"); // Certifique-se de que a navegação está configurada corretamente
       } else {
         console.log("Documento do usuário não encontrado!");
         Alert.alert(
@@ -60,30 +42,13 @@ const LoginScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error("Erro no login:", error.message);
-      Alert.alert("Erro no login", error.message);
+      Alert.alert("Erro no login", "E-mail ou senha inválidos.");
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-
-      {/* Carrossel */}
-      <View style={styles.carouselContainer}>
-        <Image
-          style={styles.carouselImage}
-          source={{ uri: images[activeIndex] }}
-        />
-        <View style={styles.dotsContainer}>
-          {images.map((_, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => setActiveIndex(index)}
-              style={[styles.dot, activeIndex === index && styles.activeDot]}
-            />
-          ))}
-        </View>
-      </View>
 
       {/* Formulário de Login */}
       <TextInput
@@ -97,7 +62,7 @@ const LoginScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="Senha"
         placeholderTextColor="#aaa"
-        secureTextEntry={true}
+        secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
@@ -155,30 +120,6 @@ const styles = StyleSheet.create({
   registerButtonText: {
     color: "#6FA15A",
     fontSize: 16,
-  },
-  carouselContainer: {
-    marginBottom: 50,
-    justifyContent: "top",
-    alignItems: "center",
-  },
-  carouselImage: {
-    width: "100%",
-    height: 200,
-    borderRadius: 10,
-  },
-  dotsContainer: {
-    flexDirection: "row",
-    marginTop: 10,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    margin: 5,
-    backgroundColor: "#aaa",
-  },
-  activeDot: {
-    backgroundColor: "#6FA15A",
   },
 });
 

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { authFirebase, createUserWithEmailAndPassword, db, doc } from '../firebaseConfig';
-import { setDoc } from 'firebase/firestore'; // Adicionado aqui
+import { setDoc } from 'firebase/firestore'; // Importação do setDoc
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importação do AsyncStorage
 
 const { width } = Dimensions.get('window');
 
