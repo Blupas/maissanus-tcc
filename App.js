@@ -27,7 +27,7 @@ const App = () => {
     <SelectionProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Selecao" // Agora a tela inicial é a TelaSelecao
+          initialRouteName="Login" // Agora a tela inicial é a de Login
           screenOptions={{
             headerStyle: {
               backgroundColor: '#1F1F1F', // Cor de fundo do cabeçalho para todas as telas
@@ -39,7 +39,7 @@ const App = () => {
           {/* Definindo a navegação entre telas */}
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="Selecao" component={SelecaoScreen} options={{ title: 'Seleção' }} />
+          <Stack.Screen name="Selecao" component={SelecaoScreen} options={{ title: 'Home' }} />
           <Stack.Screen name="Detalhes" component={DetalhesScreen} />
           <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} />
           <Stack.Screen name="UsuarioScreen" component={UsuarioScreen} options={{ title: 'Usuário' }} />

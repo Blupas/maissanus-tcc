@@ -8,18 +8,18 @@ const TreinoSelecaoScreen = ({ navigation }) => {
       <Text style={styles.title}>Escolha o tipo de treino:</Text>
 
       <TouchableOpacity
-        style={styles.optionButton}
-        onPress={() => navigation.navigate('ForcaScreen')}
-      >
-        <Text style={styles.optionText}>
-          <MaterialIcons name="fitness-center" size={24} color="#fff" />
-          Treino de Força
-        </Text>
-      </TouchableOpacity>
+  style={styles.optionButton}
+  onPress={() => navigation.navigate('ForcaScreen', { isEnabled: true })}
+>
+  <Text style={styles.optionText}>
+    <MaterialIcons name="fitness-center" size={24} color="#fff" />
+    Treino de Força
+  </Text>
+</TouchableOpacity>
 
       <TouchableOpacity
         style={styles.optionButton}
-        onPress={() => navigation.navigate('HipertrofiaScreen')}
+        onPress={() => navigation.navigate('HipertrofiaScreen')} // Navegação correta
       >
         <Text style={styles.optionText}>
           <MaterialIcons name="accessibility" size={24} color="#fff" />
@@ -28,15 +28,15 @@ const TreinoSelecaoScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       {/* Nova opção de treino para resistência */}
-<TouchableOpacity
-  style={styles.optionButton}
-  onPress={() => navigation.navigate('ResistenciaScreen')} // Verifique se o nome está correto
->
-  <Text style={styles.optionText}>
-    <MaterialIcons name="directions-run" size={24} color="#fff" />
-    Treino de Resistência
-  </Text>
-</TouchableOpacity>
+      <TouchableOpacity
+        style={styles.optionButton}
+        onPress={() => navigation.navigate('ResistenciaScreen')} // Navegação correta
+      >
+        <Text style={styles.optionText}>
+          <MaterialIcons name="directions-run" size={24} color="#fff" />
+          Treino de Resistência
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

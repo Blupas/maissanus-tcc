@@ -10,6 +10,7 @@ import {
   collection,
   addDoc,
   getDocs,
+  deleteDoc,
 } from "firebase/firestore"; // Para Firestore
 
 // Configuração do Firebase
@@ -35,8 +36,9 @@ export {
   db,
   doc,
   addDoc,
+  getDocs,
+  deleteDoc, // Exportando deleteDoc
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   collection,
-  getDocs,
 };

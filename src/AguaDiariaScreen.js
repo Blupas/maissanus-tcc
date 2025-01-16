@@ -1,31 +1,111 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Dimensions, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import {
+  db,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+  deleteDoc,
+} from '../firebaseConfig'; // Importando Firestore
 
 const { width } = Dimensions.get('window');
 
 const AguaDiariaScreen = () => {
-  const [hydration, setHydration] = useState([
-    { time: '07:00', amount: '250 ml', completed: false },
-    { time: '09:00', amount: '200 ml', completed: false },
-    { time: '11:00', amount: '250 ml', completed: false },
-    { time: '13:00', amount: '250 ml', completed: false },
-    { time: '15:00', amount: '200 ml', completed: false },
-    { time: '17:00', amount: '200 ml', completed: false },
-    { time: '19:00', amount: '200 ml', completed: false },
-  ]);
-
+  const [hydration, setHydration] = useState([]);
   const [newAmount, setNewAmount] = useState('');
   const [newTime, setNewTime] = useState('');
 
-  const toggleCompletion = (index) => {
+  const hydrationCollection = collection(db, 'hydration');
+
+  // Carregar dados de hidratação do Firestore quando o componente for montado
+  useEffect(() => {
+    const fetchHydrationData = async () => {
+      try {
+        const snapshot = await getDocs(hydrationCollection);
+        const fetchedData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // Ordenar os dados com base no horário (convertido para 24h)
+        const sortedData = fetchedData.sort((a, b) => {
+          const timeA = convertTo24HourFormat(a.time);
+          const timeB = convertTo24HourFormat(b.time);
+          return timeA - timeB; // Ordem crescente
+        });
+
+        setHydration(sortedData);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+    };
+
+    fetchHydrationData();
+  }, []);
+
+  // Função para converter o horário de 24h para 12h com AM/PM
+  const convertTo12HourFormat = (time) => {
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Verifica se a hora é válida
+    if (isNaN(hour) || isNaN(minute)) {
+      return 'Hora inválida';
+    }
+
+    const isPM = hour >= 12;
+    const hour12 = hour % 12 || 12; // Ajusta para formato de 12h
+    const suffix = isPM ? 'PM' : 'AM';
+    return `${hour12}:${minute < 10 ? '0' + minute : minute} ${suffix}`;
+  };
+
+  // Função para converter o horário de 12h com AM/PM para 24h
+  const convertTo24HourFormat = (time) => {
+    const [hour, minute] = time.split(':').map(Number);
+    const suffix = time.split(' ')[1]; // AM ou PM
+
+    let hour24 = hour;
+
+    if (suffix === 'PM' && hour < 12) {
+      hour24 += 12; // Convertendo PM
+    } else if (suffix === 'AM' && hour === 12) {
+      hour24 = 0; // Convertendo 12 AM para 00
+    }
+
+    return hour24 * 60 + minute; // Retorna o horário em minutos para comparação fácil
+  };
+
+  // Alterar o status de conclusão
+  const toggleCompletion = async (index) => {
     const updatedHydration = hydration.map((item, i) =>
       i === index ? { ...item, completed: !item.completed } : item
     );
     setHydration(updatedHydration);
+
+    const updatedItem = updatedHydration[index];
+    const itemRef = doc(db, 'hydration', updatedItem.id);
+    try {
+      await updateDoc(itemRef, { completed: updatedItem.completed });
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+    }
   };
 
-  const addWater = () => {
+  // Adicionar nova entrada de água
+  const addWater = async () => {
     if (newAmount.trim() === '' || isNaN(newAmount)) {
       Alert.alert('Erro', 'Por favor, insira uma quantidade válida de água!');
       return;
@@ -35,32 +115,82 @@ const AguaDiariaScreen = () => {
       return;
     }
 
+    const formattedTime = convertTo12HourFormat(newTime); // Converte para 12h AM/PM
+
+    if (formattedTime === 'Hora inválida') {
+      Alert.alert('Erro', 'Por favor, insira um horário válido!');
+      return;
+    }
+
     const newEntry = {
-      time: newTime,
+      time: formattedTime, // Usa o horário convertido
       amount: `${newAmount} ml`,
       completed: false,
     };
 
-    setHydration([...hydration, newEntry]);
+    // Atualizar o estado local
+    setHydration((prev) => {
+      const updatedHydration = [...prev, newEntry];
+      
+      // Ordenar os dados com base no horário (convertido para 24h)
+      updatedHydration.sort((a, b) => {
+        const timeA = convertTo24HourFormat(a.time);
+        const timeB = convertTo24HourFormat(b.time);
+        return timeA - timeB; // Ordem crescente
+      });
+
+      return updatedHydration;
+    });
+
     setNewAmount('');
     setNewTime('');
+
+    try {
+      await addDoc(hydrationCollection, newEntry);
+    } catch (error) {
+      console.error('Erro ao adicionar água:', error);
+    }
   };
 
-  const resetHydration = () => {
-    setHydration([]);
+  // Resetar os dados de hidratação
+  const resetHydration = async () => {
+    try {
+      const snapshot = await getDocs(hydrationCollection);
+
+      // Excluir cada documento do Firestore
+      const deletePromises = snapshot.docs.map((docSnapshot) =>
+        deleteDoc(doc(db, 'hydration', docSnapshot.id))
+      );
+      await Promise.all(deletePromises);
+
+      // Limpar o estado local
+      setHydration([]);
+    } catch (error) {
+      console.error('Erro ao resetar dados de hidratação:', error);
+    }
   };
 
+  // Calcular o total de água consumida
   const calculateTotalWater = () => {
     return hydration
-      .filter(item => item.completed)
-      .reduce((total, item) => total + parseInt(item.amount.replace('ml', '').trim(), 10), 0);
+      .filter((item) => item.completed)
+      .reduce(
+        (total, item) =>
+          total + parseInt(item.amount.replace('ml', '').trim(), 10),
+        0
+      );
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Total de Água Consumida: {calculateTotalWater()} ml</Text>
+          <Text style={styles.headerText}>
+            Total de Água Consumida: {calculateTotalWater()} ml
+          </Text>
         </View>
 
         <Text style={styles.title}>Recomendação de Ingestão de Água</Text>
@@ -68,18 +198,27 @@ const AguaDiariaScreen = () => {
         <View style={styles.table}>
           <View style={styles.row}>
             <Text style={[styles.columnHeader, styles.flex2]}>Horário</Text>
-            <Text style={[styles.columnHeader, styles.flex2]}>Quantidade de Água</Text>
+            <Text style={[styles.columnHeader, styles.flex2]}>
+              Quantidade de Água
+            </Text>
             <Text style={styles.columnHeader}>Status</Text>
           </View>
           {hydration.map((item, index) => (
             <View style={styles.row} key={index}>
               <Text style={[styles.cell, styles.flex2]}>{item.time}</Text>
               <Text style={[styles.cell, styles.flex2]}>{item.amount}</Text>
-              <TouchableOpacity style={styles.cell} onPress={() => toggleCompletion(index)}>
+              <TouchableOpacity
+                style={styles.cell}
+                onPress={() => toggleCompletion(index)}
+              >
                 {item.completed ? (
                   <Ionicons name="checkmark-circle" size={24} color="#6FA15A" />
                 ) : (
-                  <Ionicons name="ellipse-outline" size={24} color="#FF6347" />
+                  <Ionicons
+                    name="ellipse-outline"
+                    size={24}
+                    color="#FF6347"
+                  />
                 )}
               </TouchableOpacity>
             </View>
