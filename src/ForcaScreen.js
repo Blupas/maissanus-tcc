@@ -4,7 +4,7 @@ import { View, StyleSheet, ScrollView, Text } from 'react-native';
 
 const ForcaScreen = () => {
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator='true'>
+    <ScrollView style={styles.container} showsHorizontalScrollIndicator={true}>
       <View style={styles.group}>
         <Text style={styles.groupTitle}>Peito</Text>
         <View style={styles.exercise}>

@@ -6,17 +6,20 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { authFirebase, db } from "../firebaseConfig"; // Certifique-se de que authFirebase e db estão exportados corretamente.
+import { authFirebase, db } from "../firebaseConfig"; 
 import { getDoc, doc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
         authFirebase,
@@ -32,6 +35,7 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem("userData", JSON.stringify(userData));
 
         console.log("Usuário logado:", userData);
+        setLoading(false)
         navigation.navigate("Selecao"); // Certifique-se de que a navegação está configurada corretamente
       } else {
         console.log("Documento do usuário não encontrado!");
@@ -67,7 +71,11 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setPassword}
       />
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        { !loading ? (
         <Text style={styles.loginButtonText}>Logar</Text>
+        ) : (
+          <ActivityIndicator color="#fff" size={30}/>
+        )}
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.registerButton}

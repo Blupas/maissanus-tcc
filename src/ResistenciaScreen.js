@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, Platform, Dimensions } from 'react-
 const ResistenciaScreen = () => {
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator='true'>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsHorizontalScrollIndicator={true}>
         <Text style={styles.title}>Treino de Resistência</Text>
 
         <Text style={styles.sectionTitle}>Aquecimento</Text>

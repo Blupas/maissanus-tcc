@@ -11,6 +11,7 @@ import {
   addDoc,
   getDocs,
   deleteDoc,
+  updateDoc
 } from "firebase/firestore"; // Para Firestore
 
 // Configuração do Firebase
@@ -25,7 +26,6 @@ const firebaseConfig = {
 
 // Inicializando o Firebase
 const app = initializeApp(firebaseConfig);
-
 // Serviços Firebase
 const authFirebase = getAuth(app);
 const db = getFirestore(app);
@@ -37,6 +37,7 @@ export {
   doc,
   addDoc,
   getDocs,
+  updateDoc,
   deleteDoc, // Exportando deleteDoc
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
