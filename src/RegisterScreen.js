@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Dimensions, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { authFirebase, createUserWithEmailAndPassword, db, doc } from '../firebaseConfig';
 import { setDoc } from 'firebase/firestore'; // Importação do setDoc
@@ -46,7 +46,7 @@ const RegisterScreen = ({ navigation }) => {
         console.log("Documento no Firestore criado com sucesso!");
       } catch (error) {
         console.error("Erro ao criar o documento no Firestore:", error.message);
-      }      
+      }
 
       navigation.navigate('Home');
     } catch (error) {
@@ -56,7 +56,7 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -124,12 +124,12 @@ const RegisterScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Voltar ao login</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1C1C1E', justifyContent: 'center', padding: 20 },
+  container: { flexGrow: 1, backgroundColor: '#1C1C1E', justifyContent: 'center', padding: 20 },
   inputContainer: { marginHorizontal: 20 },
   input: { backgroundColor: '#2C2C2E', color: '#fff', padding: 15, borderRadius: 15, marginBottom: 15, borderWidth: 1, borderColor: '#444' },
   genderContainer: { marginBottom: 15 },

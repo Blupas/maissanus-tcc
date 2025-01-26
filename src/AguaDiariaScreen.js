@@ -34,6 +34,7 @@ const AguaDiariaScreen = () => {
   const [newTime, setNewTime] = useState('');
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [totalWater, setTotalWater] = useState(0); // Variável para armazenar o total de água consumida
 
   const loadUserData = async () => {
     try {
@@ -77,6 +78,7 @@ const AguaDiariaScreen = () => {
       });
 
       setHydration(sortedData);
+      updateTotalWater(sortedData); // Atualiza o total de água consumida
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     }
@@ -103,6 +105,20 @@ const AguaDiariaScreen = () => {
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
     }
+
+    // Atualiza o total de água consumida quando o status de "drinked" for alterado
+    updateTotalWater(updatedHydration);
+  };
+
+  const updateTotalWater = (hydrationData) => {
+    const total = hydrationData.reduce((acc, item) => {
+      if (item.drinked) {
+        const amount = parseFloat(item.amount.replace(' ml', ''));
+        return acc + (isNaN(amount) ? 0 : amount);
+      }
+      return acc;
+    }, 0);
+    setTotalWater(total);
   };
 
   const addWater = async () => {
@@ -145,6 +161,7 @@ const AguaDiariaScreen = () => {
 
       setNewAmount('');
       setNewTime('');
+      updateTotalWater([...hydration, newEntry]); // Atualiza o total de água consumida
     } catch (error) {
       console.error('Erro ao adicionar água:', error);
     }
@@ -165,9 +182,18 @@ const AguaDiariaScreen = () => {
       await Promise.all(deletePromises);
 
       setHydration([]);
+      setTotalWater(0); // Resetando o total de água consumida
       Alert.alert('Sucesso', 'Todos os registros de água foram removidos!');
     } catch (error) {
       console.error('Erro ao remover registros:', error);
+    }
+  };
+
+  const displayTotalWater = () => {
+    if (totalWater >= 1000) {
+      return `${(totalWater / 1000).toFixed(2)} L`; // Exibe em Litros se maior ou igual a 1000ml
+    } else {
+      return `${totalWater} ml`; // Exibe em ml se menor que 1000ml
     }
   };
 
@@ -179,6 +205,10 @@ const AguaDiariaScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Rastreamento de Água Diária</Text>
+        </View>
+
+        <View style={styles.totalWaterContainer}>
+          <Text style={styles.totalWaterText}>Água consumida: {displayTotalWater()}</Text>
         </View>
 
         <View style={styles.table}>
@@ -255,6 +285,18 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 20,
     color: '#6FA15A',
+    fontWeight: 'bold',
+  },
+  totalWaterContainer: {
+    backgroundColor: '#333',
+    padding: 15,
+    marginBottom: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  totalWaterText: {
+    fontSize: 18,
+    color: '#fff',
     fontWeight: 'bold',
   },
   table: {
