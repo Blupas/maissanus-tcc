@@ -20,9 +20,8 @@ import {
   setDoc,
   updateDoc,
   getDocs,
+  deleteDoc,
   addDoc,
-  query,
-  where,
 } from '../firebaseConfig'; // Importando Firestore
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,9 +33,8 @@ const AguaDiariaScreen = () => {
   const [newAmount, setNewAmount] = useState('');
   const [newTime, setNewTime] = useState('');
   const [userData, setUserData] = useState({});
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
-  // Função para carregar dados salvos
   const loadUserData = async () => {
     try {
       const savedData = await AsyncStorage.getItem('userData');
@@ -58,7 +56,6 @@ const AguaDiariaScreen = () => {
     }
   }, [userData]);
 
-  // Função para carregar dados de hidratação do Firestore
   const fetchHydrationData = async () => {
     if (!userData.uid) return;
 
@@ -73,11 +70,10 @@ const AguaDiariaScreen = () => {
         ...doc.data(),
       }));
 
-      // Ordenar os dados com base no horário (convertido para 24h)
       const sortedData = fetchedData.sort((a, b) => {
         const timeA = convertTo24HourFormat(a.time);
         const timeB = convertTo24HourFormat(b.time);
-        return timeA - timeB; // Ordem crescente
+        return timeA - timeB;
       });
 
       setHydration(sortedData);
@@ -86,13 +82,11 @@ const AguaDiariaScreen = () => {
     }
   };
 
-  // Função para converter o horário de 12h com AM/PM para 24h
   const convertTo24HourFormat = (time) => {
     const [hour, minute] = time.split(':').map(Number);
-    return hour * 60 + minute; // Retorna o horário em minutos para comparação fácil
+    return hour * 60 + minute;
   };
 
-  // Alterar o status de "bebido"
   const toggleDrinked = async (index) => {
     const updatedHydration = hydration.map((item, i) =>
       i === index ? { ...item, drinked: !item.drinked } : item
@@ -111,19 +105,20 @@ const AguaDiariaScreen = () => {
     }
   };
 
-  // Adicionar nova entrada de água
   const addWater = async () => {
-    setLoading(true)
+    setLoading(true);
     if (newAmount.trim() === '' || isNaN(newAmount)) {
       Alert.alert('Erro', 'Por favor, insira uma quantidade válida de água!');
+      setLoading(false);
       return;
     }
     if (newTime.trim() === '') {
       Alert.alert('Erro', 'Por favor, insira um horário válido!');
+      setLoading(false);
       return;
     }
 
-    const today = new Date().toISOString().split('T')[0]; // Data do dia no formato YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
     const userDocRef = doc(collection(db, 'hydration'), userData.uid);
     const dateCollection = collection(userDocRef, today);
 
@@ -139,11 +134,10 @@ const AguaDiariaScreen = () => {
       setHydration((prev) => {
         const updatedHydration = [...prev, { ...newEntry, id: docRef.id }];
 
-        // Ordenar os dados com base no horário (convertido para 24h)
         updatedHydration.sort((a, b) => {
           const timeA = convertTo24HourFormat(a.time);
           const timeB = convertTo24HourFormat(b.time);
-          return timeA - timeB; // Ordem crescente
+          return timeA - timeB;
         });
 
         return updatedHydration;
@@ -151,9 +145,29 @@ const AguaDiariaScreen = () => {
 
       setNewAmount('');
       setNewTime('');
-      setLoading(false)
     } catch (error) {
       console.error('Erro ao adicionar água:', error);
+    }
+    setLoading(false);
+  };
+
+  const resetHydration = async () => {
+    if (!userData.uid) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const userDocRef = doc(collection(db, 'hydration'), userData.uid);
+    const dateCollection = collection(userDocRef, today);
+
+    try {
+      const snapshot = await getDocs(dateCollection);
+
+      const deletePromises = snapshot.docs.map((doc) => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+
+      setHydration([]);
+      Alert.alert('Sucesso', 'Todos os registros de água foram removidos!');
+    } catch (error) {
+      console.error('Erro ao remover registros:', error);
     }
   };
 
@@ -206,13 +220,17 @@ const AguaDiariaScreen = () => {
             onChangeText={(text) => setNewAmount(text)}
           />
           <TouchableOpacity style={styles.addButton} onPress={addWater}>
-            { !loading ? (
+            {!loading ? (
               <Text style={styles.addButtonText}>Adicionar</Text>
             ) : (
               <ActivityIndicator color="#fff" size={30} />
-            ) }
+            )}
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={styles.resetButton} onPress={resetHydration}>
+          <Text style={styles.resetButtonText}>Remover Água</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -290,6 +308,18 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  resetButton: {
+    backgroundColor: '#FF6347',
+    padding: 15,
+    borderRadius: 15,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  resetButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',

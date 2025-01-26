@@ -90,7 +90,7 @@ const RegisterScreen = ({ navigation }) => {
         />
         <TextInput
           style={styles.input}
-          placeholder="Altura (m)"
+          placeholder="Altura (cm)"
           placeholderTextColor="#bbb"
           keyboardType="numeric"
           value={heightValue}
