@@ -81,7 +81,7 @@ const TelaSelecao = () => {
       </View>
 
       <View style={styles.option}>
-        <Text style={styles.optionTitle}>Dieta</Text>
+        <Text style={styles.optionTitle}>Calorias</Text>
         <TouchableOpacity
           style={styles.optionButton}
           onPress={() => navigation.navigate('CaloriasDiarias')}  // Corrigir nome da tela
